@@ -37,7 +37,6 @@ func main() {
 		//go func(i int) {
 		t := time.Now()
 		world := newWorld(*w, *h, *r)
-		world.expandRegions(-1, -1)
 		worlds <- world
 		fmt.Printf("Created world %v, took 		%v\n", i, time.Now().Sub(t))
 		//}(i)

@@ -40,6 +40,8 @@ func newWorld(width, height, regionCount int) *world {
 		w.expanders[i] = &w.regions[i]
 	}
 
+	w.expandRegions(-1, -1)
+
 	return &w
 }
 
