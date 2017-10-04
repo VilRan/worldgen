@@ -11,8 +11,10 @@ func TestNewWorld(t *testing.T) {
 
 func TestInitializeTiles(t *testing.T) {
 	w := worldWithTiles()
-	if len(w.tiles) != w.width*w.height {
-		t.Fatal("")
+	size := w.width * w.height
+	length := len(w.tiles)
+	if len(w.tiles) != size {
+		t.Fatalf("len(w.tiles) was %v, expected %v", length, size)
 	}
 }
 
