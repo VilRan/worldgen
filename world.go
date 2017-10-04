@@ -10,7 +10,7 @@ type world struct {
 	width     int       // Width (x-axis) of the world in tiles (=pixels, for now)
 	height    int       // Height (y-axis) of the world in tiles (=pixels, for now)
 	tiles     []tile    // All tiles in the world, arranged row by row
-	regions   []region  // All regions in the world
+	regions   []*region // All regions in the world
 	expanders []*region // Regions that have room left to grow
 }
 
@@ -36,11 +36,15 @@ func (w *world) initializeTiles() {
 }
 
 func (w *world) initializeRegions(count int, b []*biome) {
-	w.regions = make([]region, count)
-	w.expanders = make([]*region, count)
+	w.regions = make([]*region, 0, count)
+	w.expanders = make([]*region, 0, count)
 	for i := 0; i < count; i++ {
-		w.regions[i].initialize(w, b)
-		w.expanders[i] = &w.regions[i]
+		r := newRegion(w, b)
+		if r == nil {
+			continue
+		}
+		w.regions = append(w.regions, r)
+		w.expanders = append(w.expanders, r)
 	}
 }
 
@@ -48,7 +52,7 @@ func (w *world) initializeRegions(count int, b []*biome) {
 // maxPerRegion <= 0 to use defaults.
 func (w *world) expandRegions(iterations, maxPerRegion int) {
 	if maxPerRegion <= 0 {
-		maxPerRegion = len(w.tiles) / len(w.regions)
+		maxPerRegion = len(w.tiles) / cap(w.regions)
 	}
 
 	for iterations != 0 && len(w.expanders) > 0 {
@@ -112,19 +116,26 @@ type region struct {
 	origin point
 }
 
-func (r *region) initialize(w *world, b []*biome) {
+func newRegion(w *world, b []*biome) *region {
 	t := w.findFreeTile(-1)
+	if t == nil {
+		return nil
+	}
+
+	var r region
 	r.origin = t.pos
 	r.color = randomColor()
 	r.biome = b[rand.Intn(len(b))]
 
 	r.expandTo(t)
-	n := rand.Intn(len(w.tiles) / len(w.regions))
+	n := rand.Intn(len(w.tiles) / cap(w.regions))
 	for i := 0; i < n; i++ {
 		if !r.expandRandom(w) {
 			break
 		}
 	}
+
+	return &r
 }
 
 func randomColor() color.RGBA {

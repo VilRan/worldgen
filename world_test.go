@@ -9,6 +9,12 @@ func TestNewWorld(t *testing.T) {
 	}
 }
 
+func BenchmarkNewWorld(b *testing.B) {
+	for n := 0; n < b.N; n++ {
+		newWorld(2024, 1024, 250)
+	}
+}
+
 func TestInitializeTiles(t *testing.T) {
 	w := worldWithTiles()
 	size := w.width * w.height
@@ -59,6 +65,7 @@ func TestExpand(t *testing.T) {
 
 }
 */
+
 func worldWithTiles() *world {
 	var w world
 	w.width = 10
