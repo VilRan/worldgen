@@ -1,4 +1,4 @@
-package main
+package world
 
 import (
 	"image"
@@ -6,7 +6,8 @@ import (
 	"math/rand"
 )
 
-type world struct {
+// World ...
+type World struct {
 	width     int       // Width (x-axis) of the world in tiles (=pixels, for now)
 	height    int       // Height (y-axis) of the world in tiles (=pixels, for now)
 	tiles     []tile    // All tiles in the world, arranged row by row
@@ -14,8 +15,9 @@ type world struct {
 	expanders []*region // Regions that have room left to grow
 }
 
-func newWorld(width, height, regionCount int) *world {
-	var w world
+// NewWorld ...
+func NewWorld(width, height, regionCount int) *World {
+	var w World
 	w.width = width
 	w.height = height
 
@@ -26,7 +28,7 @@ func newWorld(width, height, regionCount int) *world {
 	return &w
 }
 
-func (w *world) initializeTiles() {
+func (w *World) initializeTiles() {
 	w.tiles = make([]tile, w.width*w.height)
 	for y := 0; y < w.height; y++ {
 		for x := 0; x < w.width; x++ {
@@ -35,7 +37,7 @@ func (w *world) initializeTiles() {
 	}
 }
 
-func (w *world) initializeRegions(count int, b []*biome) {
+func (w *World) initializeRegions(count int, b []*biome) {
 	w.regions = make([]*region, 0, count)
 	w.expanders = make([]*region, 0, count)
 	for i := 0; i < count; i++ {
@@ -50,7 +52,7 @@ func (w *world) initializeRegions(count int, b []*biome) {
 
 // iterations < 0 to expand random regions until there are no free tiles in the world.
 // maxPerRegion <= 0 to use defaults.
-func (w *world) expandRegions(iterations, maxPerRegion int) {
+func (w *World) expandRegions(iterations, maxPerRegion int) {
 	if maxPerRegion <= 0 {
 		maxPerRegion = len(w.tiles) / cap(w.regions)
 	}
@@ -74,11 +76,11 @@ func (w *world) expandRegions(iterations, maxPerRegion int) {
 	}
 }
 
-func (w *world) tileAt(x, y int) *tile {
+func (w *World) tileAt(x, y int) *tile {
 	return &w.tiles[x+y*w.width]
 }
 
-func (w *world) wrappedTileAt(x, y int) *tile {
+func (w *World) wrappedTileAt(x, y int) *tile {
 	if y < 0 || y >= w.height {
 		return nil
 	}
@@ -94,7 +96,7 @@ func (w *world) wrappedTileAt(x, y int) *tile {
 // Searches randomly for a tile not occupied by a region.
 // If maxTries < 0, the function will not give up
 // at least until it overflows and wraps back to 0.
-func (w *world) findFreeTile(maxTries int) *tile {
+func (w *World) findFreeTile(maxTries int) *tile {
 	for maxTries != 0 {
 		x := rand.Intn(w.width)
 		y := rand.Intn(w.height)
@@ -116,7 +118,7 @@ type region struct {
 	origin point
 }
 
-func newRegion(w *world, b []*biome) *region {
+func newRegion(w *World, b []*biome) *region {
 	t := w.findFreeTile(-1)
 	if t == nil {
 		return nil
@@ -148,7 +150,7 @@ func randomColor() color.RGBA {
 }
 
 // Returns false if the region can't expand anymore, returns true otherwise.
-func (r *region) expandRandom(w *world) bool {
+func (r *region) expandRandom(w *World) bool {
 	if len(r.border) == 0 {
 		return false
 	}
@@ -157,7 +159,7 @@ func (r *region) expandRandom(w *world) bool {
 	return true
 }
 
-func (r *region) expand(borderTileIndex int, w *world) {
+func (r *region) expand(borderTileIndex int, w *World) {
 	t := r.border[borderTileIndex]
 	r.border[borderTileIndex] = r.border[len(r.border)-1]
 	r.border = r.border[:len(r.border)-1]

@@ -1,4 +1,4 @@
-package main
+package world
 
 import (
 	"bufio"
@@ -11,15 +11,18 @@ import (
 	"path/filepath"
 )
 
-type worldImage struct {
-	*world
+// Image ...
+type Image struct {
+	*World
 }
 
-func (w *world) image() worldImage {
-	return worldImage{w}
+// Image ...
+func (w *World) Image() Image {
+	return Image{w}
 }
 
-func (w worldImage) save(path string) error {
+// Save ...
+func (i Image) Save(path string) error {
 	err := os.MkdirAll(filepath.Dir(path), os.ModeDir)
 	if err != nil {
 		return err
@@ -37,11 +40,11 @@ func (w worldImage) save(path string) error {
 	case ".jpg":
 		fallthrough
 	case ".jpeg":
-		err = jpeg.Encode(writer, w, nil)
+		err = jpeg.Encode(writer, i, nil)
 	case ".gif":
-		err = gif.Encode(writer, w, nil)
+		err = gif.Encode(writer, i, nil)
 	default:
-		err = png.Encode(writer, w)
+		err = png.Encode(writer, i)
 	}
 	if err != nil {
 		return err
@@ -51,18 +54,21 @@ func (w worldImage) save(path string) error {
 	return nil
 }
 
-func (w worldImage) ColorModel() color.Model {
+// ColorModel ...
+func (i Image) ColorModel() color.Model {
 	return color.RGBAModel
 }
 
-func (w worldImage) Bounds() image.Rectangle {
-	return image.Rect(0, 0, w.width, w.height)
+// Bounds ...
+func (i Image) Bounds() image.Rectangle {
+	return image.Rect(0, 0, i.width, i.height)
 }
 
-func (w worldImage) At(x, y int) color.Color {
-	t := w.tileAt(x, y)
+// At ...
+func (i Image) At(x, y int) color.Color {
+	t := i.tileAt(x, y)
 	if t.region == nil {
 		return color.RGBA{0x00, 0x00, 0x00, 0xFF}
 	}
-	return w.tileAt(x, y).region.biome.color
+	return i.tileAt(x, y).region.biome.color
 }

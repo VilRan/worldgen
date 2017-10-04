@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math/rand"
 	"time"
+
+	"github.com/VilRan/worldgen/world"
 )
 
 func main() {
@@ -21,14 +23,14 @@ func main() {
 
 	rand.Seed(*s)
 
-	worlds := make(chan *world)
+	worlds := make(chan *world.World)
 	done := make(chan bool)
 
 	go func() {
 		for i := 0; i < *n; i++ {
 			world := <-worlds
 			t := time.Now()
-			world.image().save(fmt.Sprintf("%v-%v.%v", *p, i, *f))
+			world.Image().Save(fmt.Sprintf("%v-%v.%v", *p, i, *f))
 			fmt.Printf("Saved world, took 		%v\n", time.Now().Sub(t))
 		}
 		done <- true
@@ -36,7 +38,7 @@ func main() {
 	for i := 0; i < *n; i++ {
 		//go func(i int) {
 		t := time.Now()
-		world := newWorld(*w, *h, *r)
+		world := world.NewWorld(*w, *h, *r)
 		worlds <- world
 		fmt.Printf("Created world %v, took 		%v\n", i, time.Now().Sub(t))
 		//}(i)

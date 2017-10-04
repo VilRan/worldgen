@@ -1,9 +1,9 @@
-package main
+package world
 
 import "testing"
 
 func TestNewWorld(t *testing.T) {
-	w := newWorld(10, 10, 1)
+	w := NewWorld(10, 10, 1)
 	if w == nil {
 		t.Fatal("World should not be nil.")
 	}
@@ -11,7 +11,7 @@ func TestNewWorld(t *testing.T) {
 
 func BenchmarkNewWorld(b *testing.B) {
 	for n := 0; n < b.N; n++ {
-		newWorld(2024, 1024, 250)
+		NewWorld(2024, 1024, 250)
 	}
 }
 
@@ -66,8 +66,8 @@ func TestExpand(t *testing.T) {
 }
 */
 
-func worldWithTiles() *world {
-	var w world
+func worldWithTiles() *World {
+	var w World
 	w.width = 10
 	w.height = 10
 	w.initializeTiles()
