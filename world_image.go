@@ -15,6 +15,10 @@ type worldImage struct {
 	*world
 }
 
+func (w *world) image() worldImage {
+	return worldImage{w}
+}
+
 func (w worldImage) save(path string) error {
 	err := os.MkdirAll(filepath.Dir(path), os.ModeDir)
 	if err != nil {
