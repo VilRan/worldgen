@@ -25,20 +25,8 @@ func handle(writer http.ResponseWriter, req *http.Request) {
 	q.Add("f", "png")
 
 	w, err := strconv.ParseInt(q.Get("w"), 10, 32)
-	if err != nil {
-		writer.Write([]byte(err.Error()))
-		return
-	}
 	h, err := strconv.ParseInt(q.Get("h"), 10, 32)
-	if err != nil {
-		writer.Write([]byte(err.Error()))
-		return
-	}
 	r, err := strconv.ParseInt(q.Get("r"), 10, 32)
-	if err != nil {
-		writer.Write([]byte(err.Error()))
-		return
-	}
 	s, err := strconv.ParseInt(q.Get("s"), 10, 64)
 	if err != nil {
 		writer.Write([]byte(err.Error()))
