@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"image/gif"
+	"image/jpeg"
 	"image/png"
 	"log"
 	"math/rand"
@@ -23,6 +25,7 @@ func handle(wr http.ResponseWriter, req *http.Request) {
 	q.Add("h", "1024")
 	q.Add("r", "250")
 	q.Add("s", fmt.Sprint(time.Now().Unix()))
+	q.Add("f", "png")
 
 	w, err := strconv.ParseInt(q.Get("w"), 10, 32)
 	if err != nil {
@@ -42,7 +45,16 @@ func handle(wr http.ResponseWriter, req *http.Request) {
 	}
 
 	rand.Seed(int64(s))
-
 	world := world.NewWorld(int(w), int(h), int(r))
-	png.Encode(wr, world.Image())
+
+	switch q.Get("f") {
+	case "jpg":
+		fallthrough
+	case "jpeg":
+		jpeg.Encode(wr, world.Image(), nil)
+	case "gif":
+		gif.Encode(wr, world.Image(), nil)
+	default:
+		png.Encode(wr, world.Image())
+	}
 }
