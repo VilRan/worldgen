@@ -2,9 +2,6 @@ package main
 
 import (
 	"fmt"
-	"image/gif"
-	"image/jpeg"
-	"image/png"
 	"log"
 	"math/rand"
 	"net/http"
@@ -16,10 +13,10 @@ import (
 
 func main() {
 	http.HandleFunc("/", handle)
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Fatal(http.ListenAndServe(":80", nil))
 }
 
-func handle(wr http.ResponseWriter, req *http.Request) {
+func handle(writer http.ResponseWriter, req *http.Request) {
 	q := req.URL.Query()
 	q.Add("w", "2048")
 	q.Add("h", "1024")
@@ -29,32 +26,29 @@ func handle(wr http.ResponseWriter, req *http.Request) {
 
 	w, err := strconv.ParseInt(q.Get("w"), 10, 32)
 	if err != nil {
-		wr.Write([]byte(err.Error()))
+		writer.Write([]byte(err.Error()))
+		return
 	}
 	h, err := strconv.ParseInt(q.Get("h"), 10, 32)
 	if err != nil {
-		wr.Write([]byte(err.Error()))
+		writer.Write([]byte(err.Error()))
+		return
 	}
 	r, err := strconv.ParseInt(q.Get("r"), 10, 32)
 	if err != nil {
-		wr.Write([]byte(err.Error()))
+		writer.Write([]byte(err.Error()))
+		return
 	}
 	s, err := strconv.ParseInt(q.Get("s"), 10, 64)
 	if err != nil {
-		wr.Write([]byte(err.Error()))
+		writer.Write([]byte(err.Error()))
+		return
 	}
 
 	rand.Seed(int64(s))
 	world := world.NewWorld(int(w), int(h), int(r))
-
-	switch q.Get("f") {
-	case "jpg":
-		fallthrough
-	case "jpeg":
-		jpeg.Encode(wr, world.Image(), nil)
-	case "gif":
-		gif.Encode(wr, world.Image(), nil)
-	default:
-		png.Encode(wr, world.Image())
+	err = world.Image().Encode(writer, q.Get("f"))
+	if err != nil {
+		writer.Write([]byte(err.Error()))
 	}
 }

@@ -7,6 +7,7 @@ import (
 	"image/gif"
 	"image/jpeg"
 	"image/png"
+	"io"
 	"os"
 	"path/filepath"
 )
@@ -35,8 +36,19 @@ func (i Image) Save(path string) error {
 	defer file.Close()
 
 	writer := bufio.NewWriter(file)
+	err = i.Encode(writer, filepath.Ext(path))
+	if err != nil {
+		return err
+	}
 
-	switch filepath.Ext(path) {
+	return writer.Flush()
+}
+
+// Encode ...
+func (i Image) Encode(writer io.Writer, format string) error {
+	var err error
+
+	switch format {
 	case ".jpg":
 		fallthrough
 	case ".jpeg":
@@ -46,12 +58,8 @@ func (i Image) Save(path string) error {
 	default:
 		err = png.Encode(writer, i)
 	}
-	if err != nil {
-		return err
-	}
 
-	writer.Flush()
-	return nil
+	return err
 }
 
 // ColorModel ...
