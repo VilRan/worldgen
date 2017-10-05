@@ -54,7 +54,7 @@ func (w *World) initializeRegions(count int, b []*biome) {
 // maxPerRegion <= 0 to use defaults.
 func (w *World) expandRegions(iterations, maxPerRegion int) {
 	if maxPerRegion <= 0 {
-		maxPerRegion = len(w.tiles) / cap(w.regions)
+		maxPerRegion = len(w.tiles) / (1 + cap(w.regions))
 	}
 
 	for iterations != 0 && len(w.expanders) > 0 {
