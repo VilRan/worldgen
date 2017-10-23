@@ -54,7 +54,7 @@ func (w *World) initializeRegions(count int, b []*biome) {
 // maxPerRegion <= 0 to use defaults.
 func (w *World) expandRegions(iterations, maxPerRegion int) {
 	if maxPerRegion <= 0 {
-		maxPerRegion = len(w.tiles) / (1 + cap(w.regions))
+		maxPerRegion = w.defaultMaxExpansionsPerRegion()
 	}
 
 	for iterations != 0 && len(w.expanders) > 0 {
@@ -67,13 +67,21 @@ func (w *World) expandRegions(iterations, maxPerRegion int) {
 
 		for i := 0; i < n; i++ {
 			if !r.expandRandom(w) {
-				w.expanders[ri] = w.expanders[len(w.expanders)-1]
-				w.expanders = w.expanders[:len(w.expanders)-1]
+				w.removeExpanderAt(ri)
 				break
 			}
 			iterations--
 		}
 	}
+}
+
+func (w *World) defaultMaxExpansionsPerRegion() int {
+	return len(w.tiles) / (1 + cap(w.regions))
+}
+
+func (w *World) removeExpanderAt(index int) {
+	w.expanders[index] = w.expanders[len(w.expanders)-1]
+	w.expanders = w.expanders[:len(w.expanders)-1]
 }
 
 func (w *World) tileAt(x, y int) *tile {
@@ -130,7 +138,7 @@ func newRegion(w *World, b []*biome) *region {
 	r.biome = b[rand.Intn(len(b))]
 
 	r.expandTo(t)
-	n := rand.Intn(len(w.tiles) / cap(w.regions))
+	n := w.defaultMaxExpansionsPerRegion()
 	for i := 0; i < n; i++ {
 		if !r.expandRandom(w) {
 			break
@@ -161,8 +169,7 @@ func (r *region) expandRandom(w *World) bool {
 
 func (r *region) expand(borderTileIndex int, w *World) {
 	t := r.border[borderTileIndex]
-	r.border[borderTileIndex] = r.border[len(r.border)-1]
-	r.border = r.border[:len(r.border)-1]
+	r.removeBorderAt(borderTileIndex)
 
 	// This loop is intentionally unrolled for performance.
 	// Testing showed significant time savings.
@@ -174,6 +181,11 @@ func (r *region) expand(borderTileIndex int, w *World) {
 	r.expandTo(w.wrappedTileAt(t.pos.X+1, t.pos.Y-1))
 	r.expandTo(w.wrappedTileAt(t.pos.X-1, t.pos.Y+1))
 	r.expandTo(w.wrappedTileAt(t.pos.X+1, t.pos.Y+1))
+}
+
+func (r *region) removeBorderAt(index int) {
+	r.border[index] = r.border[len(r.border)-1]
+	r.border = r.border[:len(r.border)-1]
 }
 
 func (r *region) expandTo(t *tile) {
