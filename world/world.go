@@ -6,7 +6,8 @@ import (
 	"math/rand"
 )
 
-// World ...
+// World is the end product of worldgen.
+// It contains a grid of tiles, each with a region and a biome.
 type World struct {
 	width     int       // Width (x-axis) of the world in tiles (=pixels, for now)
 	height    int       // Height (y-axis) of the world in tiles (=pixels, for now)
@@ -15,7 +16,7 @@ type World struct {
 	expanders []*region // Regions that have room left to grow
 }
 
-// NewWorld ...
+// NewWorld creates, initializes and generates a new World.
 func NewWorld(width, height, regionCount int) *World {
 	var w World
 	w.width = width
